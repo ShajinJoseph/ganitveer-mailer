@@ -1,0 +1,61 @@
+name: GanitVeer Daily Mailer
+
+# Railway blocks outbound SMTP, so the daily send runs here on a GitHub Actions
+# runner (which permits SMTP). This is the authoritative daily trigger; the
+# in-app APScheduler cron is disabled unless GV_INAPP_CRON=true on Railway.
+
+on:
+  schedule:
+    # 00:37 UTC = 06:07 AM IST (off-the-hour minute reduces scheduling delay).
+    - cron: "37 0 * * *"
+  workflow_dispatch: {}
+
+jobs:
+  send:
+    runs-on: ubuntu-latest
+    # Room for up to ~100 sends spaced 45-180s apart (~several hours worst case).
+    timeout-minutes: 180
+    strategy:
+      # One domain job failing must not cancel the others.
+      fail-fast: false
+      matrix:
+        # Each domain gets a fixed 0-indexed shard; with shard_count=3 the three
+        # jobs take disjoint school-id slices (id % 3), so no school is emailed
+        # by more than one domain.
+        include:
+          - domain: getsomekits.com
+            shard: 0
+          - domain: ganitveerreach.in
+            shard: 1
+          - domain: ganitveeroutreach.in
+            shard: 2
+    # Per-domain group so the three domain jobs run in parallel, while a slow
+    # run of one domain still can't overlap the next run of the SAME domain.
+    concurrency:
+      group: gv-mailer-${{ matrix.domain }}
+      cancel-in-progress: false
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install dependencies
+        run: pip install requests
+
+      - name: Run GanitVeer mailer for ${{ matrix.domain }}
+        run: python github_mailer.py
+        env:
+          RAILWAY_API_URL: ${{ secrets.RAILWAY_API_URL }}
+          CRON_SECRET: ${{ secrets.CRON_SECRET }}
+          MAILER_DOMAIN: ${{ matrix.domain }}
+          MAILER_SHARD: ${{ matrix.shard }}
+          MAILER_SHARD_COUNT: 3
+          SMTP_HOST: ${{ secrets.SMTP_HOST }}
+          SMTP_USERNAME: ${{ secrets.SMTP_USERNAME }}
+          SMTP_PASSWORD: ${{ secrets.SMTP_PASSWORD }}
+          FROM_EMAIL: ${{ secrets.FROM_EMAIL }}
+          FROM_NAME: ${{ secrets.FROM_NAME }}
