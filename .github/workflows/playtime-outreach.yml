@@ -1,0 +1,31 @@
+name: GanitVeer PlayTime Outreach
+
+on:
+  workflow_dispatch: {}
+
+jobs:
+  notify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 180
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install dependencies
+        run: pip install requests
+
+      - name: Run PlayTime outreach
+        run: python playtime_outreach.py
+        env:
+          GV_ADMIN_URL: ${{ secrets.GV_ADMIN_URL }}
+          GV_CRON_SECRET: ${{ secrets.GV_CRON_SECRET }}
+          WHATSAPP_ACCESS_TOKEN: ${{ secrets.WHATSAPP_ACCESS_TOKEN }}
+          WHATSAPP_PHONE_NUMBER_ID: ${{ secrets.WHATSAPP_PHONE_NUMBER_ID }}
+          ZEPTO_API_TOKEN: ${{ secrets.ZEPTO_API_TOKEN }}
+          ZEPTO_FROM_ADDRESS: ${{ secrets.ZEPTO_FROM_ADDRESS }}
+          ZEPTO_FROM_NAME: ${{ secrets.ZEPTO_FROM_NAME }}
