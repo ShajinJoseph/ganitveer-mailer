@@ -31,6 +31,19 @@ ZEPTO_API_URL = "https://api.zeptomail.in/v1.1/email"
 def first_word(name: str) -> str:
     return (name or "").split()[0] if name else ""
 
+def mask_phone(phone: str) -> str:
+    """Show only last 4 digits: 91XXXXXX1234"""
+    digits = "".join(c for c in phone if c.isdigit())
+    return f"91XXXXXX{digits[-4:]}" if len(digits) >= 4 else "XXXXXXXX"
+
+def mask_email(email: str) -> str:
+    """Show only first 2 chars and domain: sh***@gmail.com"""
+    if "@" not in email:
+        return "***"
+    local, domain = email.split("@", 1)
+    masked = local[:2] + "***" if len(local) > 2 else "***"
+    return f"{masked}@{domain}"
+
 def random_delay() -> float:
     """Non-uniform delay: 50% short, 30% medium, 20% long."""
     r = random.random()
@@ -83,13 +96,13 @@ def send_whatsapp(phone: str, parent_first: str, child_first: str, playtime_date
             timeout=15,
         )
         if resp.status_code == 200:
-            print(f"  WhatsApp OK → {number}")
+            print(f"  WhatsApp OK → {mask_phone(number)}")
             return True
         else:
-            print(f"  WhatsApp FAIL → {number}: {resp.status_code} {resp.text[:200]}")
+            print(f"  WhatsApp FAIL → {mask_phone(number)}: {resp.status_code}")
             return False
     except Exception as e:
-        print(f"  WhatsApp ERROR → {number}: {e}")
+        print(f"  WhatsApp ERROR → {mask_phone(number)}: {e}")
         return False
 
 def send_email(email: str, parent_first: str, child_first: str, playtime_date: str) -> bool:
@@ -120,13 +133,13 @@ def send_email(email: str, parent_first: str, child_first: str, playtime_date: s
             timeout=15,
         )
         if resp.status_code in (200, 201):
-            print(f"  Email OK → {email}")
+            print(f"  Email OK → {mask_email(email)}")
             return True
         else:
-            print(f"  Email FAIL → {email}: {resp.status_code} {resp.text[:200]}")
+            print(f"  Email FAIL → {mask_email(email)}: {resp.status_code}")
             return False
     except Exception as e:
-        print(f"  Email ERROR → {email}: {e}")
+        print(f"  Email ERROR → {mask_email(email)}: {e}")
         return False
 
 # ── Main ─────────────────────────────────────────────────────────────────────
@@ -134,14 +147,13 @@ def send_email(email: str, parent_first: str, child_first: str, playtime_date: s
 def main():
     print("GanitVeer PlayTime Outreach — fetching recipients...")
 
-    # Fetch recipients from admin API
     resp = requests.get(
         f"{ADMIN_URL}/api/admin/playtime/championship-invite",
         headers={"x-cron-secret": CRON_SECRET},
         timeout=30,
     )
     if resp.status_code != 200:
-        print(f"Failed to fetch recipients: {resp.status_code} {resp.text}")
+        print(f"Failed to fetch recipients: {resp.status_code} {resp.text[:100]}")
         raise SystemExit(1)
 
     data = resp.json()
@@ -162,7 +174,7 @@ def main():
         phone = reg.get("phone", "")
         email = reg.get("email", "")
 
-        print(f"\n[{i}/{total}] {child_first} — parent: {parent_first}")
+        print(f"\n[{i}/{total}] {child_first} ({parent_first})")
 
         wa_ok = send_whatsapp(phone, parent_first, child_first, playtime_date) if phone else False
         em_ok = send_email(email, parent_first, child_first, playtime_date) if email else False
@@ -172,7 +184,6 @@ def main():
         else:
             failed += 1
 
-        # Non-uniform delay (skip after last recipient)
         if i < total:
             delay = random_delay()
             print(f"  Waiting {delay:.1f}s...")
@@ -182,7 +193,7 @@ def main():
     print(f"Done. Sent: {sent} | Failed: {failed} | Total: {total}")
 
     if failed > 0:
-        raise SystemExit(1)  # Marks workflow as failed so you notice
+        raise SystemExit(1)
 
 if __name__ == "__main__":
     main()
