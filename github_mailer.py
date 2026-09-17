@@ -173,7 +173,7 @@ def _mask_email(email: str) -> str:
 # ===========================================================================
 
 def send_smtp(smtp, from_email, from_name, to_email, subject, body) -> None:
-    """Send one email via SMTP SSL with the GanitVeer poster attached."""
+    """Send one email via SMTP SSL with the GanitVeer PDFs attached."""
     import pathlib
     from email.mime.application import MIMEApplication
     # MIMEMultipart and MIMEText are imported at module top.
@@ -184,20 +184,26 @@ def send_smtp(smtp, from_email, from_name, to_email, subject, body) -> None:
     msg["To"] = to_email
     msg.attach(MIMEText(body, "plain", "utf-8"))
 
-    # Attach the GanitVeer poster PDF
-    poster_path = pathlib.Path(__file__).parent / "assets" / "ganitveer-school-circular.pdf"
-    if poster_path.exists():
-        with open(poster_path, "rb") as f:
-            attachment = MIMEApplication(f.read(), _subtype="pdf")
-            attachment.add_header(
-                "Content-Disposition",
-                "attachment",
-                filename="GanitVeer_School_Circular.pdf"
-            )
-            msg.attach(attachment)
-        print(f"[github-mailer] poster attached ({poster_path.stat().st_size // 1024}KB)")
-    else:
-        print(f"[github-mailer] WARNING: poster not found at {poster_path}")
+    # Attach the GanitVeer PDFs. Each is skipped independently if missing, so
+    # a single absent file never blocks the email or the other attachment.
+    attachments_dir = pathlib.Path(__file__).parent / "assets"
+    for pdf_name in (
+        "GanitVeer_Allies_Institutions.pdf",
+        "GanitVeer_For_Parents.pdf",
+    ):
+        pdf_path = attachments_dir / pdf_name
+        if pdf_path.exists():
+            with open(pdf_path, "rb") as f:
+                attachment = MIMEApplication(f.read(), _subtype="pdf")
+                attachment.add_header(
+                    "Content-Disposition",
+                    "attachment",
+                    filename=pdf_name
+                )
+                msg.attach(attachment)
+            print(f"[github-mailer] attached {pdf_name} ({pdf_path.stat().st_size // 1024}KB)")
+        else:
+            print(f"[github-mailer] WARNING: attachment not found at {pdf_path}")
 
     with smtplib.SMTP_SSL(smtp["host"], 465, timeout=SMTP_TIMEOUT) as server:
         server.login(smtp["username"], smtp["password"])
