@@ -69,7 +69,7 @@ How parents register
 Parents register directly at ganitveer.com/register. No school permission and no school account are required. The fee is ₹590 inclusive of GST. If we cancel the exam, every registration is refunded in full.
 
 How the school can help
-If you find this worth sharing, one note to parents of children aged 5 to 10 is enough. I have attached a poster you are welcome to share if you wish.
+If you find this worth sharing, one note to parents of children aged 5 to 10 is enough. I have attached two documents you are welcome to share if you wish.
 
 About us
 GanitVeer is operated by IgniVeer Ventures LLP, a registered company based in Bengaluru. Terms, refund policy, and privacy policy are at ganitveer.com. This is our first season. The design is simple: one paper, one fixed set of prizes, awarded only on merit."""
