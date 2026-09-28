@@ -112,7 +112,7 @@ def send_whatsapp(phone: str, parent_name: str, child_name: str) -> bool:
             print(f"  WhatsApp OK  → {mask_phone(number)}")
             return True
         else:
-            print(f"  WhatsApp FAIL → {mask_phone(number)}: {resp.status_code} {resp.text[:120]}")
+            print(f"  WhatsApp FAIL → {mask_phone(number)}: {resp.status_code}")
             return False
     except Exception as e:
         print(f"  WhatsApp ERROR → {mask_phone(number)}: {e}")
@@ -168,7 +168,7 @@ def send_email(email: str, parent_name: str, child_name: str, roll_number: str) 
             print(f"  Email OK     → {mask_email(email)}")
             return True
         else:
-            print(f"  Email FAIL   → {mask_email(email)}: {resp.status_code} {resp.text[:120]}")
+            print(f"  Email FAIL   → {mask_email(email)}: {resp.status_code}")
             return False
     except Exception as e:
         print(f"  Email ERROR  → {mask_email(email)}: {e}")
