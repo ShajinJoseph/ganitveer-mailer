@@ -205,7 +205,9 @@ def main():
         email       = reg.get("email", "")
         roll_number = reg.get("rollNumber", "")
 
-        print(f"\n[{i}/{total}] {child_name} ({parent_name}) — {roll_number}")
+        child_first = child_name.split()[0] if child_name else ""
+        parent_first = parent_name.split()[0] if parent_name else ""
+        print(f"\n[{i}/{total}] {child_first} ({parent_first}) — {roll_number}")
 
         wa_ok = send_whatsapp(phone, parent_name, child_name) if phone else False
         em_ok = send_email(email, parent_name, child_name, roll_number) if email else False
