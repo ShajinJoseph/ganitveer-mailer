@@ -37,11 +37,6 @@ jobs:
           fi
           echo "GV_CRON_SECRET is present."
 
-      - name: Set up Python
-        uses: actions/setup-python@v5
-        with:
-          python-version: '3.12'
-
       - name: Send championship date update to all confirmed Season 1 registrants
         env:
           GV_CRON_SECRET: ${{ secrets.GV_CRON_SECRET }}
