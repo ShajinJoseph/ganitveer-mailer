@@ -91,7 +91,7 @@ _SUBJECTS = [
     "GanitVeer 2026: one short online maths paper for children aged 5 to 10",
     "National Mathematics Championship 2026 for children aged 5 to 10, from GanitVeer",
     "GanitVeer 2026: national maths championship for primary school children",
-    "GanitVeer 2026: Season 1 on Sunday, 29 November 2026, for children aged 5 to 10",
+    "GanitVeer 2026: Season 1 on Sunday, 29 November, for children aged 5 to 10",
     "GanitVeer 2026: a maths championship children aged 5 to 10 sit from home",
     "GanitVeer 2026: a skill-based maths championship for children aged 5 to 10",
 ]
