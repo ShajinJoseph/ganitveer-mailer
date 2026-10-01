@@ -128,7 +128,7 @@ def send_email(email: str, parent_name: str, child_name: str, roll_number: str) 
   <p style="font-size: 16px; line-height: 1.6;">
     The Familiarisation Session for <strong>{child_name}</strong> is now open.
     This is your chance to get comfortable with how the Championship questions
-    and system work before exam day on 18 October.
+    and system work before exam day on 29 November 2026.
   </p>
   <div style="background-color: #F59E0B; color: #111827; padding: 20px; border-radius: 8px; text-align: center; margin: 24px 0;">
     <p style="margin: 0 0 8px; font-size: 14px; font-weight: 600;">Roll Number</p>

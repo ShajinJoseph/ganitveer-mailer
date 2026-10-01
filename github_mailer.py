@@ -47,7 +47,7 @@ _GREETING = "Dear Principal,"
 
 _CORE = """GanitVeer is not another olympiad. This is one short paper, around 20 to 30 minutes of actual testing inside a 60 minute window, that children sit from home. It is not a coaching programme and is not tied to any school syllabus. The paper is scored by skill area, not as a single lump mark. Every child receives a section-wise skill report, so the gap is visible early, while it is still easy to light the spark.
 
-Season 1 is on Sunday, 18 October 2026 at 5:00 PM IST.
+Season 1 is on Sunday, 29 November 2026 at 5:00 PM IST.
 
 What every child receives
 Every child who sits the exam receives an individual skill report, scored section by section, with a short note on what to practise next. Every registered child is also posted a hands-on puzzle gift to their home address, and receives a personalised certificate by email. These go to every participant, regardless of score.
@@ -91,7 +91,7 @@ _SUBJECTS = [
     "GanitVeer 2026: one short online maths paper for children aged 5 to 10",
     "National Mathematics Championship 2026 for children aged 5 to 10, from GanitVeer",
     "GanitVeer 2026: national maths championship for primary school children",
-    "GanitVeer 2026: Season 1 on Sunday, 18 October, for children aged 5 to 10",
+    "GanitVeer 2026: Season 1 on Sunday, 29 November 2026, for children aged 5 to 10",
     "GanitVeer 2026: a maths championship children aged 5 to 10 sit from home",
     "GanitVeer 2026: a skill-based maths championship for children aged 5 to 10",
 ]
