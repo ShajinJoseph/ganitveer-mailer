@@ -2,14 +2,16 @@ name: GanitVeer Championship Date Update
 
 # ONE-TIME manual workflow for the Season 1 exam date change (18 Oct 2026 -> 29 Nov 2026).
 #
-# It calls the admin endpoint POST /api/championship-date-notify, which owns the entire bulk
-# send (WhatsApp + email to every confirmed Season 1 registrant). No Python script is needed
-# here: the per-recipient logic and templates live server-side in the monorepo, so this
-# workflow only needs curl and the cron secret.
+# It runs championship_date_outreach.py, which reads the recipient list from
+# GET /api/admin/championship-date-recipients and then calls
+# POST /api/championship-date-notify once per registrant. The endpoint sends to ONE
+# registrant per call, so the loop and the delays between sends live here, on the
+# runner: a serverless function cannot pace a 95-recipient blast inside its timeout.
 #
-# DO NOT RUN THIS MORE THAN ONCE. The endpoint has no de-duplication, so every run re-sends
-# to every confirmed Season 1 registrant (95 of them). The notification_log rows written
-# under purpose 'championship_date_update' are the audit trail.
+# DO NOT RUN THIS MORE THAN ONCE. Neither the script nor the endpoint de-duplicates,
+# so every run re-sends to every confirmed Season 1 registrant (95 of them). The
+# notification_log rows written under purpose 'championship_date_update' are the
+# audit trail.
 #
 # workflow_dispatch only. This is deliberately NEVER scheduled.
 
@@ -27,6 +29,16 @@ jobs:
     timeout-minutes: 180
 
     steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Install dependencies
+        run: pip install requests
+
       - name: Validate GV_CRON_SECRET is set
         env:
           GV_CRON_SECRET: ${{ secrets.GV_CRON_SECRET }}
@@ -38,12 +50,7 @@ jobs:
           echo "GV_CRON_SECRET is present."
 
       - name: Send championship date update to all confirmed Season 1 registrants
+        run: python championship_date_outreach.py
         env:
+          GV_ADMIN_URL:   ${{ secrets.GV_ADMIN_URL }}
           GV_CRON_SECRET: ${{ secrets.GV_CRON_SECRET }}
-        run: |
-          echo "Sending championship date update notifications to all confirmed Season 1 registrants..."
-          response=$(curl --silent --show-error --fail-with-body --max-time 360 \
-            -X POST "https://boh.ganitveer.com/api/championship-date-notify" \
-            -H "x-cron-secret: ${GV_CRON_SECRET}" \
-            -H "Content-Type: application/json")
-          echo "Response: ${response}"
