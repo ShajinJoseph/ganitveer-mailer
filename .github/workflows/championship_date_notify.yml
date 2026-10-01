@@ -1,0 +1,54 @@
+name: GanitVeer Championship Date Update
+
+# ONE-TIME manual workflow for the Season 1 exam date change (18 Oct 2026 -> 29 Nov 2026).
+#
+# It calls the admin endpoint POST /api/championship-date-notify, which owns the entire bulk
+# send (WhatsApp + email to every confirmed Season 1 registrant). No Python script is needed
+# here: the per-recipient logic and templates live server-side in the monorepo, so this
+# workflow only needs curl and the cron secret.
+#
+# DO NOT RUN THIS MORE THAN ONCE. The endpoint has no de-duplication, so every run re-sends
+# to every confirmed Season 1 registrant (95 of them). The notification_log rows written
+# under purpose 'championship_date_update' are the audit trail.
+#
+# workflow_dispatch only. This is deliberately NEVER scheduled.
+
+on:
+  workflow_dispatch: {}
+
+# Never let two runs overlap. Queue rather than cancel so a slow blast finishes.
+concurrency:
+  group: championship-date-notify
+  cancel-in-progress: false
+
+jobs:
+  notify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 180
+
+    steps:
+      - name: Validate GV_CRON_SECRET is set
+        env:
+          GV_CRON_SECRET: ${{ secrets.GV_CRON_SECRET }}
+        run: |
+          if [ -z "${GV_CRON_SECRET}" ]; then
+            echo "FATAL: GV_CRON_SECRET is not set. Add it under Settings > Secrets and variables > Actions before running this workflow."
+            exit 1
+          fi
+          echo "GV_CRON_SECRET is present."
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Send championship date update to all confirmed Season 1 registrants
+        env:
+          GV_CRON_SECRET: ${{ secrets.GV_CRON_SECRET }}
+        run: |
+          echo "Sending championship date update notifications to all confirmed Season 1 registrants..."
+          response=$(curl --silent --show-error --fail-with-body --max-time 360 \
+            -X POST "https://boh.ganitveer.com/api/championship-date-notify" \
+            -H "x-cron-secret: ${GV_CRON_SECRET}" \
+            -H "Content-Type: application/json")
+          echo "Response: ${response}"
