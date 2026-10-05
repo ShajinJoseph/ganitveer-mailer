@@ -211,7 +211,7 @@ def _refresh_access_token(account: dict):
         return None
 
     if resp.status_code != 200:
-        print(f"  ERROR: token endpoint HTTP {resp.status_code}: {resp.text[:200]}")
+        print(f"  ERROR: token endpoint HTTP {resp.status_code}: {resp.text[:500]}")
         return None
 
     try:
@@ -224,6 +224,7 @@ def _refresh_access_token(account: dict):
     if not token:
         print(f"  ERROR: no access_token in response (error={body.get('error', 'unknown')})")
         return None
+    print(f"  Token refreshed OK (scope: {body.get('scope', 'unknown')})")
     return token
 
 
@@ -240,7 +241,7 @@ def _get_account_id(token: str):
         return None
 
     if resp.status_code != 200:
-        print(f"  ERROR: /api/accounts HTTP {resp.status_code}: {resp.text[:200]}")
+        print(f"  ERROR: /api/accounts HTTP {resp.status_code}: {resp.text[:500]}")
         return None
 
     try:
