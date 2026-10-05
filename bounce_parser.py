@@ -9,7 +9,7 @@ retries a dead address.
 
 Flow per account:
   1. POST https://accounts.zoho.in/oauth/v2/token   -> access_token (refresh grant)
-  2. GET  https://www.zohoapis.in/api/accounts      -> accountId (first result)
+  2. GET  https://mail.zoho.in/api/accounts         -> accountId (first result)
   3. GET  .../messages/search?searchKey=<key>       -> candidate messages
      (three keys: mailer-daemon, "delivery failed", undelivered)
   4. GET  .../messages/{id}/content                 -> raw MIME / bounce body
@@ -50,7 +50,7 @@ HTTP_TIMEOUT = 30
 # -- Zoho endpoints ----------------------------------------------------------
 
 ZOHO_TOKEN_URL = "https://accounts.zoho.in/oauth/v2/token"
-ZOHO_API_BASE = "https://www.zohoapis.in"
+ZOHO_API_BASE = "https://mail.zoho.in"
 
 # The mailer boxes, in the order the credentials appear in the brief.
 ACCOUNTS = [
