@@ -50,7 +50,16 @@ HTTP_TIMEOUT = 30
 # -- Zoho endpoints ----------------------------------------------------------
 
 ZOHO_TOKEN_URL = "https://accounts.zoho.in/oauth/v2/token"
-ZOHO_API_BASE = "https://mail.zoho.in"
+
+# GitHub Actions runners are US-based (AWS) and Zoho routes by source IP, so a
+# fixed India-DC base can 404 there while a .in host answers 200 from India.
+# Try each in order until one answers 200.
+ZOHO_API_BASES = [
+    "https://mail.zoho.in",
+    "https://mail.zoho.com",
+    "https://www.mail.zoho.in",
+    "https://www.mail.zoho.com",
+]
 
 # The mailer boxes, in the order the credentials appear in the brief.
 ACCOUNTS = [
@@ -229,39 +238,34 @@ def _refresh_access_token(account: dict):
 
 
 def _get_account_id(token: str):
-    """accountId of the first account on the token. None on any failure."""
-    try:
-        resp = requests.get(
-            f"{ZOHO_API_BASE}/api/accounts",
-            headers=_auth_headers(token),
-            timeout=HTTP_TIMEOUT,
-        )
-    except Exception as e:
-        print(f"  ERROR: accounts request failed: {e}")
-        return None
-
-    if resp.status_code != 200:
-        print(f"  ERROR: /api/accounts HTTP {resp.status_code}: {resp.text[:500]}")
-        return None
-
-    try:
-        accounts = resp.json().get("data") or []
-    except Exception:
-        print("  ERROR: /api/accounts response was not JSON")
-        return None
-
-    if not accounts:
-        print("  ERROR: /api/accounts returned no accounts")
-        return None
-
-    account_id = accounts[0].get("accountId") or accounts[0].get("account_id")
-    if not account_id:
-        print("  ERROR: first account has no accountId")
-        return None
-    return str(account_id)
+    """Try each Zoho Mail API base until one works. Returns (account_id, working_base) or (None, None)."""
+    for base in ZOHO_API_BASES:
+        try:
+            resp = requests.get(
+                f"{base}/api/accounts",
+                headers=_auth_headers(token),
+                timeout=HTTP_TIMEOUT,
+            )
+            if resp.status_code == 200:
+                try:
+                    accounts = resp.json().get("data") or []
+                except Exception:
+                    continue
+                if not accounts:
+                    continue
+                account_id = accounts[0].get("accountId") or accounts[0].get("account_id")
+                if account_id:
+                    print(f"  Account resolved via {base} (accountId: {account_id})")
+                    return account_id, base
+            else:
+                print(f"  {base}/api/accounts → HTTP {resp.status_code}")
+        except Exception as e:
+            print(f"  {base}/api/accounts → error: {e}")
+    print("  ERROR: all Zoho Mail API bases failed")
+    return None, None
 
 
-def _search_messages(token: str, account_id: str, search_key: str):
+def _search_messages(token: str, account_id: str, base: str, search_key: str):
     """
     Messages matching one searchKey, de-duplicated, best effort.
 
@@ -276,7 +280,7 @@ def _search_messages(token: str, account_id: str, search_key: str):
     for _ in range(MAX_SEARCH_PAGES):
         try:
             resp = requests.get(
-                f"{ZOHO_API_BASE}/api/accounts/{account_id}/messages/search",
+                f"{base}/api/accounts/{account_id}/messages/search",
                 headers=_auth_headers(token),
                 params={"searchKey": search_key, "limit": SEARCH_LIMIT, "start": start},
                 timeout=HTTP_TIMEOUT,
@@ -352,7 +356,7 @@ def _response_text(resp) -> str:
     return resp.text or ""
 
 
-def _get_message_content(token: str, account_id: str, message_id: str, folder_id=None) -> str:
+def _get_message_content(token: str, account_id: str, message_id: str, folder_id, base: str) -> str:
     """
     Bounce body for one message, trying the plausible Zoho shapes in turn:
     folder-scoped content, the documented content path, then raw MIME. The
@@ -360,9 +364,9 @@ def _get_message_content(token: str, account_id: str, message_id: str, folder_id
     """
     urls = []
     if folder_id:
-        urls.append(f"{ZOHO_API_BASE}/api/accounts/{account_id}/folders/{folder_id}/messages/{message_id}/content")
-    urls.append(f"{ZOHO_API_BASE}/api/accounts/{account_id}/messages/{message_id}/content")
-    urls.append(f"{ZOHO_API_BASE}/api/accounts/{account_id}/messages/{message_id}/originalmessage")
+        urls.append(f"{base}/api/accounts/{account_id}/folders/{folder_id}/messages/{message_id}/content")
+    urls.append(f"{base}/api/accounts/{account_id}/messages/{message_id}/content")
+    urls.append(f"{base}/api/accounts/{account_id}/messages/{message_id}/originalmessage")
 
     for url in urls:
         try:
@@ -480,7 +484,7 @@ def main() -> int:
             per_account.append(stats)
             continue
 
-        account_id = _get_account_id(token)
+        account_id, base = _get_account_id(token)
         if not account_id:
             auth_failures += 1
             stats["note"] = "account lookup failed"
@@ -491,7 +495,7 @@ def main() -> int:
         try:
             candidates = {}
             for key in SEARCH_KEYS:
-                for message in _search_messages(token, account_id, key):
+                for message in _search_messages(token, account_id, base, key):
                     message_id = str(message.get("messageId") or message.get("message_id") or "")
                     if message_id and message_id not in candidates:
                         candidates[message_id] = message
@@ -500,7 +504,7 @@ def main() -> int:
             for message_id, message in candidates.items():
                 try:
                     content = _get_message_content(
-                        token, account_id, message_id, message.get("folderId")
+                        token, account_id, message_id, message.get("folderId"), base
                     )
                     addresses = extract_failed_addresses(content)
                     if addresses:
