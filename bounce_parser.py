@@ -11,7 +11,8 @@ Flow per account:
   1. POST https://accounts.zoho.in/oauth/v2/token   -> access_token (refresh grant)
   2. GET  https://mail.zoho.in/api/accounts         -> accountId (first result)
   3. GET  .../messages/search?searchKey=<key>       -> candidate messages
-     (three keys: mailer-daemon, "delivery failed", undelivered)
+     (five Zoho-syntax keys, each widened with inclspamtrash:true so a bounce
+      that was filed to the Spam/Trash folders is still picked up)
   4. GET  .../messages/{id}/content                 -> raw MIME / bounce body
   5. regex the body for the failed recipient address
 
@@ -86,9 +87,25 @@ ACCOUNTS = [
     },
 ]
 
-# "delivery failed" is sent as searchKey=delivery+failed (requests encodes the
-# space in a query value as "+"), i.e. exactly the key in the brief.
-SEARCH_KEYS = ["mailer-daemon", "delivery failed", "undelivered"]
+# searchKey is not free text: Zoho requires its "parameter:value" search syntax,
+# and a bare word comes back as HTTP 400 "Invalid search query". "sender:" matches
+# the From address (bounces come from mailer-daemon@...) and "subject:" matches the
+# bounce subject lines ("Mail delivery failed", "Undelivered Mail Returned",
+# "Delivery Status Notification (Failure)", ...).
+SEARCH_KEYS = [
+    "subject:mailer-daemon",
+    "subject:delivery",
+    "subject:undelivered",
+    "sender:mailer-daemon",
+    "subject:failure",
+]
+
+# Bounces are frequently filed to Spam, and a search skips Spam/Trash by default.
+# There is no includeTrash query parameter on this endpoint - it accepts only
+# searchKey, receivedTime, start, limit and includeto. The switch is the search
+# syntax parameter inclspamtrash:true, which is chained onto the key with "::"
+# (AND) and lives inside the searchKey value.
+INCLUDE_SPAM_TRASH = "::inclspamtrash:true"
 SEARCH_LIMIT = 200      # Zoho caps limit at 200
 MAX_SEARCH_PAGES = 5    # bounded pagination; stops early on a short/duplicate page
 
@@ -282,7 +299,8 @@ def _search_messages(token: str, account_id: str, base: str, search_key: str):
             resp = requests.get(
                 f"{base}/api/accounts/{account_id}/messages/search",
                 headers=_auth_headers(token),
-                params={"searchKey": search_key, "limit": SEARCH_LIMIT, "start": start},
+                params={"searchKey": search_key + INCLUDE_SPAM_TRASH,
+                        "limit": SEARCH_LIMIT, "start": start},
                 timeout=HTTP_TIMEOUT,
             )
         except Exception as e:
