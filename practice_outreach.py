@@ -70,7 +70,7 @@ def random_delay() -> float:
 
 # ── Senders ──────────────────────────────────────────────────────────────────
 
-def send_whatsapp(phone: str, parent_name: str, child_name: str) -> bool:
+def send_whatsapp(phone: str, parent_name: str, child_name: str, roll_number: str) -> bool:
     """
     Send practice_session_open WhatsApp template.
     Template body:
@@ -78,6 +78,7 @@ def send_whatsapp(phone: str, parent_name: str, child_name: str) -> bool:
       {{2}} child_name
       {{3}} static access instruction
       {{4}} child_name (repeated — Meta requires distinct variable indices)
+      {{5}} roll_number
     """
     number = normalise_phone(phone)
     payload = {
@@ -94,6 +95,7 @@ def send_whatsapp(phone: str, parent_name: str, child_name: str) -> bool:
                     {"type": "text", "text": child_name},
                     {"type": "text", "text": ACCESS_INSTRUCTION},
                     {"type": "text", "text": child_name},
+                    {"type": "text", "text": roll_number if roll_number else "N/A"},
                 ]
             }]
         }
@@ -209,7 +211,7 @@ def main():
         parent_first = parent_name.split()[0] if parent_name else ""
         print(f"\n[{i}/{total}] {child_first} ({parent_first}) — {roll_number}")
 
-        wa_ok = send_whatsapp(phone, parent_name, child_name) if phone else False
+        wa_ok = send_whatsapp(phone, parent_name, child_name, roll_number) if phone else False
         em_ok = send_email(email, parent_name, child_name, roll_number) if email else False
 
         if wa_ok or em_ok:
