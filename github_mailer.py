@@ -45,81 +45,75 @@ SMTP_TIMEOUT = 30
 
 _GREETING = "Dear Principal,"
 
-_CORE = """GanitVeer is not another olympiad. This is one short paper, around 20 to 30 minutes of actual testing inside a 60 minute window, that children sit from home. It is not a coaching programme and is not tied to any school syllabus. The paper is scored by skill area, not as a single lump mark. Every child receives a section-wise skill report, so the gap is visible early, while it is still easy to light the spark.
+_CORE = """Through animated stories and video questions, children explore mathematical ideas, notice patterns and reason through playful challenges. No preparation is needed, and the questions are not tied to a particular school syllabus. Our aim is to make children feel curious about maths and appreciated for taking part.
 
-Season 1 is on Sunday, 29 November 2026 at 5:00 PM IST.
+For parents, the experience offers an individual skill report that helps them understand their child's strengths and areas to explore further.
 
-What every child receives
-Every child who sits the exam receives an individual skill report, scored section by section, with a short note on what to practise next. Every registered child is also posted a hands-on puzzle gift to their home address, and receives a personalised certificate by email. These go to every participant, regardless of score.
+We would appreciate you taking a look at the experience and considering whether it would interest your school's families:
+https://ganitveer.com
 
-Prizes
-A fixed prize pool of ₹1,00,000, awarded on merit, whether few children register or many.
-- GanitVeer Champion, 1 child, ₹50,000
-- GanitVeer Achiever, 5 children, ₹10,000 each
+What children receive
+* An individual skill report for every child who participates.
+* A hands-on puzzle gift delivered to every registered child's home.
+* A personalised participation certificate by email.
 
-Winners are decided by marks, with fixed tie-breakers. There is no lucky draw. TDS applies as per Indian Income Tax law where applicable.
+Participation details
+* Date: Sunday, 29 November 2026
+* Time: 5:00 PM IST
+* Format: Online, from home, using a phone, tablet or computer
+* Duration: Around 20–30 minutes, with up to 60 minutes allowed
+* Registration fee: ₹590 inclusive of GST
 
-Privacy
-Results are never published on a public leaderboard. We do not rank children in public or compare one child with another.
+A fixed prize pool of ₹1,00,000 recognises six children: ₹50,000 for one GanitVeer Champion and ₹10,000 each for five GanitVeer Achievers. Every participant is appreciated, and no public rank list is published.
 
-GanitVeer Allies
-Occasionally a large number of children from one school take part in a season entirely on their own. Where that happens, we recognise the school as a GanitVeer Ally and send an award made to keep and display. Ally status cannot be arranged or purchased, and we pay no commission or incentive to anyone for registrations. The full terms are at ganitveer.com/allies.
-
-How parents register
-Parents register directly at ganitveer.com/register. No school permission and no school account are required. The fee is ₹590 inclusive of GST. If we cancel the exam, every registration is refunded in full.
-
-How the school can help
-If you find this worth sharing, one note to parents of children aged 5 to 10 is enough. I have attached two documents you are welcome to share if you wish.
-
-About us
-GanitVeer is operated by IgniVeer Ventures LLP, a registered company based in Bengaluru. Terms, refund policy, and privacy policy are at ganitveer.com. This is our first season. The design is simple: one paper, one fixed set of prizes, awarded only on merit."""
+Parents register directly through the website. School staff do not need to collect fees, manage registrations or invigilate."""
 
 _SIGNATURE = """Warm regards,
 Shajin Joseph
 Founder, GanitVeer
-IgniVeer Ventures LLP
+IgniVeer Ventures LLP, Bengaluru
 contact@ganitveer.com
-ganitveer.com
+https://ganitveer.com
 
-To stop receiving emails from us, click here to unsubscribe: {unsubscribe_url}"""
+To stop receiving emails from us, unsubscribe here: {unsubscribe_url}"""
 
 _SUBJECTS = [
-    "GanitVeer 2026: a home-based maths championship for children aged 5 to 10",
-    "GanitVeer 2026: a national maths championship for children aged 5 to 10, sat from home",
-    "GanitVeer 2026: national online maths championship for children aged 5 to 10",
-    "For parents of children aged 5 to 10: GanitVeer National Mathematics Championship 2026",
-    "GanitVeer 2026: one short online maths paper for children aged 5 to 10",
-    "National Mathematics Championship 2026 for children aged 5 to 10, from GanitVeer",
-    "GanitVeer 2026: national maths championship for primary school children",
-    "GanitVeer 2026: Season 1 on Sunday, 29 November, for children aged 5 to 10",
-    "GanitVeer 2026: a maths championship children aged 5 to 10 sit from home",
-    "GanitVeer 2026: a skill-based maths championship for children aged 5 to 10",
+    "GanitVeer: a joyful maths experience for children aged 5 to 10",
+    "GanitVeer: a thinking experience in maths for children aged 5 to 10",
+    "GanitVeer: an individual skill report for every child aged 5 to 10",
+    "GanitVeer: a national online maths championship for children aged 5 to 10",
+    "GanitVeer: maths children aged 5 to 10 can enjoy from home",
+    "GanitVeer: playful maths challenges for children aged 5 to 10",
+    "GanitVeer: a maths experience where every child aged 5 to 10 is appreciated",
+    "GanitVeer: a home-based maths championship for children aged 5 to 10",
+    "GanitVeer: no preparation needed, a maths experience for children aged 5 to 10",
+    "GanitVeer: an invitation for children aged 5 to 10 to think and explore",
 ]
 
 _OPENINGS = [
-    "I am Shajin Joseph, founder of GanitVeer, a national online mathematics championship for children aged 5 to 10. I am writing to {school_name} only to ask whether you would be willing to share this with parents in your primary section. There is nothing for your staff to collect, administer, or invigilate. Parents register on their own.",
-    "My name is Shajin Joseph and I founded GanitVeer, a national online mathematics championship for children aged 5 to 10. I am reaching out to {school_name} with one request: that you share it with parents in your primary section if you find it worth sharing. There is nothing for your staff to collect, administer, or invigilate.",
-    "I run GanitVeer, a national online mathematics championship for children aged 5 to 10, and I am writing to {school_name} to ask only one thing: whether you would pass this on to parents in your primary section. There is nothing for your staff to collect, administer, or invigilate. Parents register on their own.",
-    "I am writing to the primary team at {school_name} about GanitVeer, a national online mathematics championship for children aged 5 to 10. All I am asking is that you share it with parents in your primary section if you feel it is worth their attention. There is nothing for your staff to collect, administer, or invigilate.",
-    "Thank you for reading this note. I am Shajin Joseph, founder of GanitVeer, a national online mathematics championship for children aged 5 to 10. I am writing to {school_name} to ask only that you share it with parents in your primary section. There is nothing for your staff to collect, administer, or invigilate.",
-    "I hope this note finds you well. I am Shajin Joseph, founder of GanitVeer, a national online mathematics championship for children aged 5 to 10. I am writing to ask whether {school_name} might share this with parents in your primary section. There is nothing for your staff to collect, administer, or invigilate.",
-    "GanitVeer is a national online mathematics championship for children aged 5 to 10. I am Shajin Joseph, its founder, and I am contacting {school_name} for one reason only: to ask that you share it with parents in your primary section if you find it worthwhile. There is nothing for your staff to collect, administer, or invigilate.",
-    "I founded GanitVeer, a national online mathematics championship for children aged 5 to 10, and I am writing to {school_name} to ask whether you would share it with parents in your primary section. There is nothing for your staff to collect, administer, or invigilate. Parents register entirely on their own.",
-    "A short note from Shajin Joseph, founder of GanitVeer, a national online mathematics championship for children aged 5 to 10. I am writing to {school_name} to ask only that you share it with parents in your primary section if you find it worth passing on. There is nothing for your staff to collect, administer, or invigilate.",
-    "I am Shajin Joseph, reaching out to {school_name} on behalf of GanitVeer, a national online mathematics championship for children aged 5 to 10. This is purely a request to share it with parents in your primary section. There is nothing for your staff to collect, administer, or invigilate. Parents register on their own.",
+    "We would like to invite children aged 5 to 10 at {school_name} to GanitVeer, a national online mathematics championship designed as a joyful thinking experience.",
+    "We would like to introduce {school_name} to GanitVeer, a national online mathematics championship for children aged 5 to 10, where each child receives an individual skill report that helps parents understand their strengths and the areas they might explore next.",
+    "It is a pleasure to write to {school_name} about GanitVeer, a national online mathematics championship created for children aged 5 to 10 to enjoy maths as a joyful thinking experience.",
+    "We would be delighted to welcome children aged 5 to 10 from {school_name} to GanitVeer, a national online mathematics championship that children take part in from the comfort of home.",
+    "We are writing to {school_name} to share GanitVeer, a national online mathematics championship designed so that children aged 5 to 10 can explore mathematical ideas with curiosity and enjoyment.",
+    "We would like to tell you about GanitVeer, a national online mathematics championship for children aged 5 to 10, and to ask whether {school_name} might consider sharing this opportunity with its families.",
+    "Every child deserves to feel curious about maths, and GanitVeer was created with that in mind. We would like to invite children aged 5 to 10 at {school_name} to take part in this national online mathematics championship.",
+    "We are writing to {school_name} to introduce GanitVeer, a national online mathematics championship for children aged 5 to 10 that is designed to be enjoyed at home, with no preparation needed.",
+    "Children aged 5 to 10 at {school_name} are warmly invited to GanitVeer, a national online mathematics championship where every participant is appreciated and every child is recognised for taking part.",
+    "We would like to share GanitVeer with you and your team at {school_name}. It is a national online mathematics championship that invites children aged 5 to 10 to explore mathematical ideas, notice patterns and enjoy thinking through playful challenges.",
 ]
 
 _CLOSINGS = [
-    "I am happy to answer questions, or to send the parent note on request.",
-    "If anything here is unclear, I would be glad to explain, and I can send a ready made parent note whenever you wish.",
-    "Please do write back with any questions. I am also happy to send a parent note you can forward directly.",
-    "I would welcome any questions you have, and I can send a short parent note on request.",
-    "If it helps, I can send a parent note ready to forward, and I am happy to answer anything you would like to know.",
-    "Do reach out if you have questions. A ready to share parent note is available whenever you need it.",
-    "I am glad to answer anything, and a prepared parent note is yours for the asking.",
-    "Should you have questions, I will answer them gladly, and I can provide a parent note ready to send.",
-    "Feel free to reply with questions, and let me know if you would like the parent note to forward.",
-    "I am here to help with any questions, and a parent note is ready to send the moment you ask.",
+    "If you find the experience worthwhile, would you share the attached parent information with families of children aged 5 to 10? We have also attached details of GanitVeer Allies, our school recognition programme.\n\nWe would be happy to answer any questions and would welcome your thoughts.",
+    "If GanitVeer feels like a good fit for your families, we would be grateful if you would share the attached parent information with them. We would also be glad to answer any questions you may have.",
+    "Should you feel this would be valuable for your school's families, we would warmly welcome your help in sharing the attached parent information with them. Any questions you have are most welcome.",
+    "If you think this might interest your school's families, would you consider passing the attached parent information on to them? We would be happy to talk through anything you would like to know.",
+    "We would be grateful if you would consider sharing the attached parent information with families of children aged 5 to 10, if it feels right for your school. The attached details of GanitVeer Allies describe our school recognition programme, and we are always glad to answer questions.",
+    "If this seems worthwhile to you, sharing the attached parent information with your families would mean a great deal to us. Please do write back with any questions.",
+    "If you feel this could be of interest to your school community, we would be grateful if you could share the attached parent information with families of children aged 5 to 10. We would welcome the chance to answer any questions.",
+    "We would be delighted if you chose to share the attached parent information with your families, should it feel like a good fit. Details of GanitVeer Allies, our school recognition programme, are attached as well, and any questions you may have are warmly welcome.",
+    "If you find this worth passing on, we would be grateful for your help in sharing the attached parent information with families of children aged 5 to 10. We would be happy to answer any questions, and we would value your thoughts.",
+    "Should you feel able to share the attached parent information with your families, we would be most grateful. The attached GanitVeer Allies details set out our school recognition programme, and we would be pleased to answer any questions or hear your thoughts.",
 ]
 
 
