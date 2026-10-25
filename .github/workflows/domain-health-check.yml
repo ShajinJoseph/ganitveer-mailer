@@ -1,0 +1,37 @@
+name: GanitVeer Domain Health Check
+
+on:
+  workflow_dispatch:
+    inputs:
+      email:
+        description: 'Recipient email for test sends (leave blank to use default)'
+        required: false
+        type: string
+  schedule:
+    # Runs Mon and Thu at 04:17 UTC (09:47 IST)
+    - cron: '17 4 * * 1,4'
+
+concurrency:
+  group: gv-domain-health
+  cancel-in-progress: false
+
+jobs:
+  health-check:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Install dependencies
+        run: pip install requests
+
+      - name: Run domain health check
+        env:
+          RAILWAY_API_URL: ${{ secrets.RAILWAY_API_URL }}
+          CRON_SECRET: ${{ secrets.CRON_SECRET }}
+          TEST_EMAIL: ${{ inputs.email || secrets.GV_HEALTH_TEST_EMAIL }}
+        run: python domain_health_check.py
