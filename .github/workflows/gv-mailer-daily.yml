@@ -19,8 +19,8 @@ jobs:
       # One domain job failing must not cancel the others.
       fail-fast: false
       matrix:
-        # Each domain gets a fixed 0-indexed shard; with shard_count=3 the three
-        # jobs take disjoint school-id slices (id % 3), so no school is emailed
+        # Each domain gets a fixed 0-indexed shard; with shard_count=9 the nine
+        # jobs take disjoint school-id slices (id % 9), so no school is emailed
         # by more than one domain.
         include:
           - domain: getsomekits.com
@@ -29,7 +29,19 @@ jobs:
             shard: 1
           - domain: ganitveeroutreach.in
             shard: 2
-    # Per-domain group so the three domain jobs run in parallel, while a slow
+          - domain: ganitveerchamps.in
+            shard: 3
+          - domain: ganitveerconnect.in
+            shard: 4
+          - domain: ganitveerinfo.in
+            shard: 5
+          - domain: ganitveerlearn.in
+            shard: 6
+          - domain: ganitveernotify.in
+            shard: 7
+          - domain: ganitveerzone.in
+            shard: 8
+    # Per-domain group so the nine domain jobs run in parallel, while a slow
     # run of one domain still can't overlap the next run of the SAME domain.
     concurrency:
       group: gv-mailer-${{ matrix.domain }}
@@ -53,7 +65,7 @@ jobs:
           CRON_SECRET: ${{ secrets.CRON_SECRET }}
           MAILER_DOMAIN: ${{ matrix.domain }}
           MAILER_SHARD: ${{ matrix.shard }}
-          MAILER_SHARD_COUNT: 3
+          MAILER_SHARD_COUNT: 9
           SMTP_HOST: ${{ secrets.SMTP_HOST }}
           SMTP_USERNAME: ${{ secrets.SMTP_USERNAME }}
           SMTP_PASSWORD: ${{ secrets.SMTP_PASSWORD }}
