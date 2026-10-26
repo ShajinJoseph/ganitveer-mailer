@@ -1,13 +1,14 @@
 # Zoho Mail Bounce Parser
-# Reads bounce/failure emails from all 3 Zoho accounts and marks failed addresses
+# Reads bounce/failure emails from all 9 Zoho accounts and marks failed addresses
 # as bounced in the DB so they are never retried.
 # Runs daily after the school mailer (which runs at 00:37 UTC).
 # Can also be triggered manually to process existing bounces immediately.
 #
 # The DB write is POST {RAILWAY_API_URL}/api/gv-mailer/cron/mark-bounced, the same
-# Railway mailer app and X-Cron-Secret auth github_mailer.py uses. That route is not
-# deployed yet; while it is missing the parser logs "not yet deployed, skipping" and
-# still reports every address it found in the run log.
+# Railway mailer app and X-Cron-Secret auth github_mailer.py uses. A 404 whose body
+# says "school not found" is reported as not_in_db; any other 404 is treated as the
+# endpoint not being deployed ("not deployed, skipping"), and every address found in
+# the run is still reported in the log.
 
 name: GanitVeer Bounce Parser
 
@@ -23,7 +24,7 @@ concurrency:
 jobs:
   parse:
     runs-on: ubuntu-latest
-    timeout-minutes: 30
+    timeout-minutes: 90
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
@@ -42,6 +43,24 @@ jobs:
           ZOHO_CLIENT_ID_KITS: ${{ secrets.ZOHO_CLIENT_ID_KITS }}
           ZOHO_CLIENT_SECRET_KITS: ${{ secrets.ZOHO_CLIENT_SECRET_KITS }}
           ZOHO_REFRESH_TOKEN_KITS: ${{ secrets.ZOHO_REFRESH_TOKEN_KITS }}
+          ZOHO_CLIENT_ID_CHAMPS: ${{ secrets.ZOHO_CLIENT_ID_CHAMPS }}
+          ZOHO_CLIENT_SECRET_CHAMPS: ${{ secrets.ZOHO_CLIENT_SECRET_CHAMPS }}
+          ZOHO_REFRESH_TOKEN_CHAMPS: ${{ secrets.ZOHO_REFRESH_TOKEN_CHAMPS }}
+          ZOHO_CLIENT_ID_CONNECT: ${{ secrets.ZOHO_CLIENT_ID_CONNECT }}
+          ZOHO_CLIENT_SECRET_CONNECT: ${{ secrets.ZOHO_CLIENT_SECRET_CONNECT }}
+          ZOHO_REFRESH_TOKEN_CONNECT: ${{ secrets.ZOHO_REFRESH_TOKEN_CONNECT }}
+          ZOHO_CLIENT_ID_INFO: ${{ secrets.ZOHO_CLIENT_ID_INFO }}
+          ZOHO_CLIENT_SECRET_INFO: ${{ secrets.ZOHO_CLIENT_SECRET_INFO }}
+          ZOHO_REFRESH_TOKEN_INFO: ${{ secrets.ZOHO_REFRESH_TOKEN_INFO }}
+          ZOHO_CLIENT_ID_LEARN: ${{ secrets.ZOHO_CLIENT_ID_LEARN }}
+          ZOHO_CLIENT_SECRET_LEARN: ${{ secrets.ZOHO_CLIENT_SECRET_LEARN }}
+          ZOHO_REFRESH_TOKEN_LEARN: ${{ secrets.ZOHO_REFRESH_TOKEN_LEARN }}
+          ZOHO_CLIENT_ID_NOTIFY: ${{ secrets.ZOHO_CLIENT_ID_NOTIFY }}
+          ZOHO_CLIENT_SECRET_NOTIFY: ${{ secrets.ZOHO_CLIENT_SECRET_NOTIFY }}
+          ZOHO_REFRESH_TOKEN_NOTIFY: ${{ secrets.ZOHO_REFRESH_TOKEN_NOTIFY }}
+          ZOHO_CLIENT_ID_ZONE: ${{ secrets.ZOHO_CLIENT_ID_ZONE }}
+          ZOHO_CLIENT_SECRET_ZONE: ${{ secrets.ZOHO_CLIENT_SECRET_ZONE }}
+          ZOHO_REFRESH_TOKEN_ZONE: ${{ secrets.ZOHO_REFRESH_TOKEN_ZONE }}
           RAILWAY_API_URL: ${{ secrets.RAILWAY_API_URL }}
           # CRON_SECRET is the Railway mailer secret github_mailer.py/gv-mailer-daily.yml
           # already use for X-Cron-Secret. GV_CRON_SECRET belongs to the admin app

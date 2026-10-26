@@ -2,7 +2,7 @@
 """
 GanitVeer Zoho Mail Bounce Parser
 
-Sweeps the three GanitVeer Zoho Mail mailboxes for bounce / delivery-failure
+Sweeps the nine GanitVeer Zoho Mail mailboxes for bounce / delivery-failure
 notifications, extracts the address that actually failed, and reports it to the
 Railway mailer DB via POST /api/gv-mailer/cron/mark-bounced so the mailer never
 retries a dead address.
@@ -21,9 +21,11 @@ way, with the same base path and header:
 
     {RAILWAY_API_URL}/api/gv-mailer/cron/mark-bounced    (X-Cron-Secret header)
 
-That route is not deployed yet. A 404 is treated as "not deployed", logged once
-per address, and the run continues. Nothing in here raises: one bad account, one
-bad message or one bad address must never abort the sweep.
+That route returns 404 with {"error": "school not found"} for addresses that are
+not in gv_schools; that is reported as "not_in_db", not as a missing endpoint.
+A 404 whose body does not say "not found" is treated as "not deployed", logged
+once per address, and the run continues. Nothing in here raises: one bad
+account, one bad message or one bad address must never abort the sweep.
 
 This repo is public, so Actions logs are public. Addresses are masked
 (pr****@school.edu.in) in everything printed, exactly as github_mailer.py does.
@@ -37,7 +39,7 @@ Env vars:
       -> ganitveer@getsomekits.com
   RAILWAY_API_URL, CRON_SECRET
 
-Exits 1 only when all three accounts fail to authenticate.
+Exits 1 only when every account fails to authenticate.
 """
 
 import os
@@ -85,6 +87,48 @@ ACCOUNTS = [
         "client_secret": "ZOHO_CLIENT_SECRET_KITS",
         "refresh_token": "ZOHO_REFRESH_TOKEN_KITS",
     },
+    {
+        "label": "champs",
+        "mailbox": "ganitveer@ganitveerchamps.in",
+        "client_id": "ZOHO_CLIENT_ID_CHAMPS",
+        "client_secret": "ZOHO_CLIENT_SECRET_CHAMPS",
+        "refresh_token": "ZOHO_REFRESH_TOKEN_CHAMPS",
+    },
+    {
+        "label": "connect",
+        "mailbox": "ganitveer@ganitveerconnect.in",
+        "client_id": "ZOHO_CLIENT_ID_CONNECT",
+        "client_secret": "ZOHO_CLIENT_SECRET_CONNECT",
+        "refresh_token": "ZOHO_REFRESH_TOKEN_CONNECT",
+    },
+    {
+        "label": "info",
+        "mailbox": "ganitveer@ganitveerinfo.in",
+        "client_id": "ZOHO_CLIENT_ID_INFO",
+        "client_secret": "ZOHO_CLIENT_SECRET_INFO",
+        "refresh_token": "ZOHO_REFRESH_TOKEN_INFO",
+    },
+    {
+        "label": "learn",
+        "mailbox": "ganitveer@ganitveerlearn.in",
+        "client_id": "ZOHO_CLIENT_ID_LEARN",
+        "client_secret": "ZOHO_CLIENT_SECRET_LEARN",
+        "refresh_token": "ZOHO_REFRESH_TOKEN_LEARN",
+    },
+    {
+        "label": "notify",
+        "mailbox": "ganitveer@ganitveernotify.in",
+        "client_id": "ZOHO_CLIENT_ID_NOTIFY",
+        "client_secret": "ZOHO_CLIENT_SECRET_NOTIFY",
+        "refresh_token": "ZOHO_REFRESH_TOKEN_NOTIFY",
+    },
+    {
+        "label": "zone",
+        "mailbox": "ganitveer@ganitveerzone.in",
+        "client_id": "ZOHO_CLIENT_ID_ZONE",
+        "client_secret": "ZOHO_CLIENT_SECRET_ZONE",
+        "refresh_token": "ZOHO_REFRESH_TOKEN_ZONE",
+    },
 ]
 
 # searchKey is not free text: Zoho requires its "parameter:value" search syntax,
@@ -116,6 +160,12 @@ OUR_DOMAINS = {
     "ganitveerreach.in",
     "getsomekits.com",
     "ganitveer.com",
+    "ganitveerchamps.in",
+    "ganitveerconnect.in",
+    "ganitveerinfo.in",
+    "ganitveerlearn.in",
+    "ganitveernotify.in",
+    "ganitveerzone.in",
 }
 
 # Local parts that are the bounce machinery itself, never a failed recipient.
@@ -444,7 +494,7 @@ def extract_failed_addresses(content: str):
 # ===========================================================================
 
 def _mark_bounced(email: str) -> str:
-    """'marked', 'skipped' (not deployed / no config) or 'failed'. Never raises."""
+    """'marked', 'not_in_db' (school absent), 'skipped' (not deployed / no config) or 'failed'. Never raises."""
     if not _BASE_URL or not _CRON_SECRET:
         return "skipped"
     try:
@@ -459,7 +509,13 @@ def _mark_bounced(email: str) -> str:
         return "failed"
 
     if resp.status_code == 404:
-        print("    mark-bounced endpoint not yet deployed, skipping")
+        try:
+            body = resp.json()
+            if "school not found" in str(body).lower() or "not found" in str(body).lower():
+                return "not_in_db"
+        except Exception:
+            pass
+        print("    mark-bounced endpoint not deployed, skipping")
         return "skipped"
     if resp.status_code >= 400:
         print(f"    WARNING: mark-bounced HTTP {resp.status_code} for {_mask_email(email)}: {resp.text[:160]}")
@@ -474,7 +530,7 @@ def _mark_bounced(email: str) -> str:
 def main() -> int:
     _load_db_config()
 
-    print("GanitVeer bounce parser - sweeping 3 Zoho mailboxes")
+    print(f"GanitVeer bounce parser - sweeping {len(ACCOUNTS)} Zoho mailboxes")
     print(f"DB target: {_BASE_URL or '(unset)'}/cron/mark-bounced")
 
     per_account = []
@@ -542,13 +598,15 @@ def main() -> int:
         per_account.append(stats)
 
     # -- report every unique failed address to the DB ------------------------
-    marked = skipped = failed_marks = 0
+    marked = not_in_db = skipped = failed_marks = 0
     if all_addresses:
         print(f"\nMarking {len(all_addresses)} unique address(es) as bounced...")
         for address in sorted(all_addresses):
             result = _mark_bounced(address)
             if result == "marked":
                 marked += 1
+            elif result == "not_in_db":
+                not_in_db += 1
             elif result == "skipped":
                 skipped += 1
             else:
@@ -565,8 +623,8 @@ def main() -> int:
               f"addresses={len(stats['addresses'])}{note}")
 
     print(f"\nTotal unique failed addresses: {len(all_addresses)}")
-    print(f"Marked bounced in DB: {marked} | skipped (endpoint not deployed): {skipped} | "
-          f"failed to mark: {failed_marks}")
+    print(f"Marked bounced in DB: {marked} | not in DB: {not_in_db} | "
+          f"skipped (endpoint not deployed): {skipped} | failed to mark: {failed_marks}")
 
     if errors:
         print("\nErrors encountered:")
@@ -576,7 +634,7 @@ def main() -> int:
         print("\nNo errors encountered.")
 
     if auth_failures == len(ACCOUNTS):
-        print("\nFATAL: all 3 Zoho accounts failed to authenticate")
+        print(f"\nFATAL: all {len(ACCOUNTS)} Zoho accounts failed to authenticate")
         return 1
     return 0
 
